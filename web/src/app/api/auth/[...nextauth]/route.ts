@@ -21,6 +21,17 @@ const handler = NextAuth({
       clientSecret: process.env.OSM_CLIENT_SECRET,
     },
   ],
+  callbacks: {
+    jwt({ token, user }) {
+      if (user) {
+        token.user = user;
+      }
+      return token;
+    },
+    session({ session, token }) {
+      return { ...session, user: token.user };
+    },
+  },
 });
 
 export { handler as GET, handler as POST };
