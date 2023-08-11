@@ -1,0 +1,20 @@
+version: '3'
+
+name: osm-for-cities
+
+services:
+  web-db:
+    platform: linux/amd64
+    image: kartoza/postgis:15
+    restart: 'always'
+    ports:
+      - 5433:5432
+    environment:
+      - ALLOW_IP_RANGE=0.0.0.0/0
+      - POSTGRES_DB=gis
+      - POSTGRES_USER=docker
+      - POSTGRES_PASS=docker
+      - POSTGRES_MULTIPLE_EXTENSIONS="postgis","uuid-ossp"
+      - DATADIR=/opt/postgres/data
+    volumes:
+      - ./app-data/web-db:/opt/postgres/data

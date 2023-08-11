@@ -1,6 +1,11 @@
 import NextAuth from "next-auth";
+import { PrismaClient } from "@prisma/client";
+import { PrismaAdapter } from "@next-auth/prisma-adapter";
+
+const prisma = new PrismaClient();
 
 const handler = NextAuth({
+  adapter: PrismaAdapter(prisma),
   providers: [
     {
       id: "openstreetmap",
@@ -16,22 +21,17 @@ const handler = NextAuth({
       },
       userinfo: "https://api.openstreetmap.org/api/0.6/user/details.json",
       profileUrl: "https://api.openstreetmap.org/api/0.6/user/details.json",
-      profile: ({ user }) => user,
+      profile: ({ user }) => {
+        return {
+          id: user.id,
+          osmId: user.id,
+          displayName: user.display_name,
+        };
+      },
       clientId: process.env.OSM_CLIENT_ID,
       clientSecret: process.env.OSM_CLIENT_SECRET,
     },
   ],
-  callbacks: {
-    jwt({ token, user }) {
-      if (user) {
-        token.user = user;
-      }
-      return token;
-    },
-    session({ session, token }) {
-      return { ...session, user: token.user };
-    },
-  },
 });
 
 export { handler as GET, handler as POST };
